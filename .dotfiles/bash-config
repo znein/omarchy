@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+# Bash Configuration - Comprehensive Shell Customizations
+# Source this file from ~/.bash_profile or ~/.bashrc
+
+# HISTORY MANAGEMENT
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTTIMEFORMAT="%Y-%m-%d %T "
+export HISTCONTROL=ignoredups:erasedups
+shopt -s histappend
+export PROMPT_COMMAND="history -a; history -n; $PROMPT_COMMAND"
+
+# EDITOR & ENVIRONMENT
+export EDITOR=vim
+export VISUAL=vim
+export OMARCHY_PATH="${XDG_DATA_DIRS:-/usr/local/share:/usr/share}/omarchy"
+export LESS=-R
+export LESS_TERMCAP_mb=$'\E[1;31m'
+export LESS_TERMCAP_md=$'\E[1;36m'
+export LESS_TERMCAP_me=$'\E[0m'
+export LESS_TERMCAP_so=$'\E[01;44;33m'
+export LESS_TERMCAP_se=$'\E[0m'
+export LESS_TERMCAP_us=$'\E[1;32m'
+export LESS_TERMCAP_ue=$'\E[0m'
+
+# SHELL OPTIONS
+set -o vi
+if [ -f /etc/bash_completion ]; then
+    source /etc/bash_completion
+fi
+
+# COLORS & LS
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# NAVIGATION ALIASES
+alias ll='ls -lah'
+alias la='ls -A'
+alias l='ls -lh'
+alias cd..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# QUICK CONFIG EDITS
+alias profile='vim ~/.bashrc'
+alias dotfiles='vim ~/.dotfiles/bash-config'
+alias reload='source ~/.bashrc'
+alias hypr='vim ~/.config/hypr/bindings.lua'
+alias input='vim ~/.config/hypr/input.lua'
+
+# GIT SHORTCUTS (note: ga, gc, gcm, gcad, gcam are defined by Omarchy)
+alias g='git'
+alias gs='git status'
+alias gp='git push'
+alias gd='git diff'
+alias gb='git branch'
+alias gco='git checkout'
+alias gl='git log --oneline -10'
+alias gaa='git add -A'
+alias gac='git add && git commit -m'
+
+# SYSTEM ALIASES
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+alias top='btop'
+alias ps='ps aux | grep'
+alias mkdir='mkdir -pv'
+alias now='date "+%Y-%m-%d %T"'
+alias timestamp='date +%s'
+
+# OMARCHY / WAYLAND / DESKTOP
+alias fm='omarchy launch file-manager'
+alias browser='omarchy launch browser'
+alias cap='omarchy capture screenshot'
+alias remind='omarchy reminder'
+alias nightlight='omarchy toggle nightlight'
+
+# DEV TOOLS & SHORTCUTS
+alias server='python -m http.server 8000'
+alias json='python -m json.tool'
+alias clip='xclip -selection clipboard'
+alias paste='xclip -selection clipboard -o'
+
+# FUNCTIONS
+
+# Create directory and enter it
+mkd() {
+    mkdir -pv "$1" && cd "$1"
+}
+
+# Extract any archive
+extract() {
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1"   ;;
+            *.tar.gz)    tar xzf "$1"   ;;
+            *.bz2)       bunzip2 "$1"   ;;
+            *.rar)       unrar x "$1"   ;;
+            *.gz)        gunzip "$1"    ;;
+            *.tar)       tar xf "$1"    ;;
+            *.tbz2)      tar xjf "$1"   ;;
+            *.tgz)       tar xzf "$1"   ;;
+            *.zip)       unzip "$1"     ;;
+            *.Z)         uncompress "$1";;
+            *)           echo "Cannot extract '$1'" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# Search command history
+hist() {
+    grep "$1" ~/.bash_history
+}
+
+# Find directory by name (ff and fd are already defined by Omarchy/system)
+finddir() {
+    find . -name "*$1*" -type d
+}
+alias fdir='finddir'
+
+# Show what's taking up disk space
+diskspace() {
+    du -sh * | sort -rh | head -10
+}
+
+# Kill a port
+killtcp() {
+    if [ -z "$1" ]; then
+        echo "Usage: killtcp <port>"
+        return 1
+    fi
+    lsof -ti:$1 | xargs kill -9 2>/dev/null && echo "Killed process on port $1" || echo "No process on port $1"
+}
+
+# Quick directory back navigation
+up() {
+    local d=""
+    local limit="$1"
+    if [ -z "$limit" ] || [ "$limit" -le 0 ]; then
+        limit=1
+    fi
+    for ((i=1; i<=limit; i++)); do
+        d="../$d"
+    done
+    if ! cd "$d"; then
+        echo "Couldn't go up $limit dirs."
+    fi
+}
+
+# PROMPT (PS1)
+
+# Get current git branch if in a git repo
+git_branch() {
+    git branch 2>/dev/null | grep '^\*' | sed 's/^* //'
+}
+
+# Fancy prompt with git branch info
+PS1='\[\033[0;32m\]\u\[\033[0m\]@\[\033[0;33m\]\h\[\033[0m\]:\[\033[0;34m\]\w\[\033[0;31m\]$(git_branch)\[\033[0m\]\$ '
+
+# Show welcome message once
+if [ -z "$DOTFILES_LOADED" ]; then
+    echo "✓ Bash config loaded (.dotfiles/bash-config)"
+    export DOTFILES_LOADED=1
+fi
