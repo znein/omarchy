@@ -29,12 +29,31 @@ local function send_key_once(key)
   end
 end
 
+-- Send key with modifiers (e.g., shift+Home for selection)
+local function send_key_with_mods(mods, key)
+  return function()
+    hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "down" }))
+    hl.timer(function()
+      hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
+    end, { timeout = 50, type = "oneshot" })
+  end
+end
+
 -- Terminal navigation (send arrow keys to focused app)
 o.bind("MOD3 + H", "Left arrow", send_key_once("Left"))
 o.bind("MOD3 + J", "Down arrow", send_key_once("Down"))
 o.bind("MOD3 + K", "Up arrow", send_key_once("Up"))
 o.bind("MOD3 + L", "Right arrow", send_key_once("Right"))
 o.bind("MOD3 + X", "Delete character", send_key_once("Delete"))
+o.bind("MOD3 + U", "Page Up", send_key_once("PgUp"))
+o.bind("MOD3 + D", "Page Down", send_key_once("PgDn"))
+o.bind("MOD3 + I", "Home", send_key_once("Home"))
+o.bind("MOD3 + N", "End", send_key_once("End"))
+
+-- Text selection variants with Shift
+o.bind("MOD3 + SHIFT + I", "Select to beginning (Home)", send_key_with_mods("shift", "Home"))
+o.bind("MOD3 + SHIFT + N", "Select to end (End)", send_key_with_mods("shift", "End"))
+
 
 -- Hyprland window focus navigation (SUPER+MOD3+hjkl)
 o.bind("SUPER + MOD3 + H", "Focus on left window", hl.dsp.focus({ direction = "l" }))
