@@ -57,12 +57,27 @@ source ~/.bashrc
 #### Vim-Style Terminal Navigation (Caps Lock + hjkl)
 Navigate the cursor in your terminal using Caps Lock as a modifier:
 
+**Arrow Navigation:**
 ```
 Caps + H  → cursor left
 Caps + J  → cursor down
 Caps + K  → cursor up
 Caps + L  → cursor right
+```
+
+**Line & Page Navigation:**
+```
+Caps + U  → page up
+Caps + D  → page down
+Caps + I  → home (beginning of line)
+Caps + N  → end (end of line)
 Caps + X  → delete character
+```
+
+**Text Selection (with Shift):**
+```
+Caps + Shift + I  → select to beginning of line (Shift+Home)
+Caps + Shift + N  → select to end of line (Shift+End)
 ```
 
 #### Window Focus Navigation (Super + Caps Lock + hjkl)
@@ -159,8 +174,11 @@ hyprctl configerrors
 1. Open a terminal and hold **Caps Lock**
 2. Press **H/J/K/L** — cursor should move left/down/up/right
 3. Press **X** — character under cursor should delete
-4. Hold **Super + Caps Lock** and press **H/J/K/L** — window focus should change
-5. Press **Both Shift keys** — Caps Lock should toggle
+4. Press **U/D** — page up/page down in terminal or text editor
+5. Press **I/N** — move to beginning/end of line
+6. Press **Shift + I** or **Shift + N** — select from cursor to beginning/end of line
+7. Hold **Super + Caps Lock** and press **H/J/K/L** — window focus should change
+8. Press **Both Shift keys** — Caps Lock should toggle
 
 ## Troubleshooting
 
@@ -234,5 +252,5 @@ Personal dotfiles — modify and use freely.
 
 ---
 
-**Last Updated:** 2026-09-10  
+**Last Updated:** 2026-09-11  
 **Status:** Active ✅
