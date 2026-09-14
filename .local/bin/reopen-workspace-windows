@@ -1,0 +1,15 @@
+#!/bin/bash
+# Reopen workspace windows
+# Launches: claude (main), btop, cliamp (stacked)
+# To arrange manually: grab claude with Super+touchpad and drag right
+
+# Launch claude first (becomes main window)
+foot -T claude claude &
+sleep 0.3
+
+# Launch btop
+foot -T btop btop &
+sleep 0.3
+
+# Launch cliamp
+foot -T cliamp cliamp &

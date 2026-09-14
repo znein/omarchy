@@ -14,8 +14,12 @@ This repository contains a complete Omarchy/Hyprland configuration setup with:
 ```
 omarchy/
 ├── .config/hypr/           # Hyprland window manager configuration
-│   ├── bindings.lua        # Custom keybindings (vim-inspired navigation)
+│   ├── bindings.lua        # Custom keybindings (vim-inspired navigation + workspace management)
+│   ├── autostart.lua       # Applications to launch on startup
+│   ├── hyprland.lua        # Main Hyprland config with window positioning rules
 │   └── input.lua           # Keyboard configuration (Caps Lock → Hyper key)
+├── .local/bin/             # Custom user scripts
+│   └── reopen-workspace-windows  # Launches claude, btop, cliamp with proper tiling
 ├── .dotfiles/              # Shell and environment setup
 │   └── bash-config         # Bash configuration and aliases
 └── README.md               # This file
@@ -90,6 +94,24 @@ Super + Caps + K  → focus window above
 Super + Caps + L  → focus right window
 ```
 
+#### Workspace Window Layout (Autostart + Tiling)
+Automatically open three workspace windows on boot in a tiled layout:
+- **claude**: Main window (initially on left, full height)
+- **btop** (top): System monitoring
+- **cliamp** (bottom): CLI amplifier
+
+**Reopen closed windows:**
+```
+Super + Caps + Q  → Relaunch all three workspace windows
+```
+
+**To arrange in your preferred layout** (btop top-left, cliamp bottom-left, claude right):
+```
+1. Launch windows with Super + Caps + Q
+2. Grab claude window with Super + Left Mouse drag
+3. Drag to the right side to swap layout
+```
+
 #### Keyboard Features
 - **Caps Lock** remapped to Hyper modifier (MOD3) — no conflicts with existing bindings
 - **Both-Shift together** still toggles real Caps Lock for typing
@@ -112,11 +134,60 @@ Maps keyboard layout and modifiers:
 - **Both-Shift** → Real Caps Lock toggle (via XKB `shift:both_capslock_cancel`)
 - Works at kernel/driver level — applies system-wide
 
+### Hyprland Autostart (`autostart.lua`)
+
+Launches applications automatically when Hyprland starts:
+```lua
+o.launch_on_start("~/.local/bin/reopen-workspace-windows")
+```
+
+This calls the custom script that manages workspace window layout on startup.
+
+### Workspace Window Script (`.local/bin/reopen-workspace-windows`)
+
+Custom bash script that launches and arranges three workspace windows with proper delays:
+
+**What it does:**
+1. Launches `claude` in a foot terminal (main window)
+2. Waits 300ms for proper tiling
+3. Launches `btop` system monitor (top-left position)
+4. Waits 300ms
+5. Launches `cliamp` CLI tool (bottom-left position)
+
+**Why delays matter:**
+- Hyprland needs time to process window rules after each launch
+- Without delays, windows may stack incorrectly
+- 300ms ensures reliable tiling order
+
+**Setup:**
+```bash
+# Make sure the script is executable
+chmod +x ~/.local/bin/reopen-workspace-windows
+
+# The script will run automatically:
+# 1. On Hyprland startup (via autostart.lua)
+# 2. When you press Super + Caps + Q to reopen windows
+```
+
+### Hyprland Window Positioning (`hyprland.lua`)
+
+Defines window rules to position applications with fixed sizes and locations:
+```lua
+o.window({ title = "^btop$" }, {
+  float = true,
+  size = "720 450",
+  move = "0 0"
+})
+```
+
+Windows are set to `float = true` and assigned specific dimensions and coordinates.
+
 ### Hyprland Bindings (`bindings.lua`)
 
 Defines keybindings using Hyprland's Lua API:
 - Terminal navigation via `hl.dsp.send_key_state()`
 - Window focus via `hl.dsp.focus()`
+- Workspace window management via script for relaunching windows
 - 50ms timer prevents key-state sticking
 
 ## Customization
@@ -179,6 +250,16 @@ hyprctl configerrors
 6. Press **Shift + I** or **Shift + N** — select from cursor to beginning/end of line
 7. Hold **Super + Caps Lock** and press **H/J/K/L** — window focus should change
 8. Press **Both Shift keys** — Caps Lock should toggle
+
+### Test Workspace Layout
+
+1. **On Login:** Three windows should open automatically after login via the reopen script
+2. **Close & Reopen:** Close any or all three windows, then press **Super + Caps + Q** to relaunch them
+3. **Verify:**
+   ```bash
+   hyprctl clients
+   # Should show btop, cliamp, and claude windows
+   ```
 
 ## Troubleshooting
 
@@ -252,5 +333,6 @@ Personal dotfiles — modify and use freely.
 
 ---
 
-**Last Updated:** 2026-09-11  
-**Status:** Active ✅
+**Last Updated:** 2026-09-13  
+**Status:** Active ✅  
+**Features:** Vim-style navigation, workspace auto-layout with btop/cliamp/claude, quick-reopen with Super+Caps+Q
