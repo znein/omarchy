@@ -61,6 +61,11 @@ o.bind("SUPER + MOD3 + J", "Focus on below window", hl.dsp.focus({ direction = "
 o.bind("SUPER + MOD3 + K", "Focus on above window", hl.dsp.focus({ direction = "u" }))
 o.bind("SUPER + MOD3 + L", "Focus on right window", hl.dsp.focus({ direction = "r" }))
 
+-- Reopen btop, cliamp, and claude windows (SUPER + MOD3 + Q)
+-- Uses script with delays to ensure proper tiling order
+o.bind("SUPER + MOD3 + Q", "Reopen workspace windows",
+  "/home/mkeh/.local/bin/reopen-workspace-windows")
+
 -- Change an existing binding by unbinding it first, then binding the key again.
 -- This example changes SUPER+SPACE from the launcher to the Omarchy root menu.
 -- hl.unbind("SUPER + SPACE")
